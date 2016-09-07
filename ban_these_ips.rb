@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby
+
 #
 #IP SECTION
 #
@@ -36,7 +38,9 @@ somefile2.close
 system("ruby -ne 'print if not /net/' allip > ipnotnet")
 system("ruby -ne 'print if not /com/' ipnotnet > ipnotcom")
 system("ruby -ne 'print if not /at/' ipnotcom > ipnotat")
-system("ruby -ne 'print if not /cz/' ipnotat > ip")
+system("ruby -ne 'print if not /cn/' ipnotat > ipnotcn")
+system("ruby -ne 'print if not /tw/' ipnotcn > ipnottw")
+system("ruby -ne 'print if not /cz/' ipnottw > ip")
 
 ### PART 2 grep /var/log/secure for invalid user and puts them in failed_user
 users = File.open('/var/log/secure', 'r') do |f|
@@ -156,7 +160,7 @@ File.open("failed_protocol").each do |line|
 somefile.close
 
 #strips the edited lines everything except IP addresses
-if  (system"grep 'port' failed_protocol_temp")
+if  (system"grep 'port' failed_protocol_temp > /dev/null")
    fname = "ip"
    somefile = File.open(fname, 'a')
    File.open('failed_protocol_temp') do |infile|
@@ -249,8 +253,6 @@ somefile = File.open(fname, 'w')
 somefile.puts my_array3
 somefile.close
 
-#write to console and cron log the ip(s) getting banned
-puts my_array3
 
 #append the IPS banned to a file to review later
 fname2 = "ips_auto_banned"
@@ -265,7 +267,7 @@ ban_array = IO.readlines('ban_these_ips').map(&:chomp).map(&:strip)
 #ban the ips
 if ban_array.length !=0
   while ban_array.length !=0
-  system("firewall-cmd --permanent --zone=\"public\" --add-rich-rule='rule family=\"ipv4\" source address=\"#{ban_array[0]}\" reject'")
+  system("firewall-cmd --permanent --zone=\"public\" --add-rich-rule='rule family=\"ipv4\" source address=\"#{ban_array[0]}\" reject' > /dev/null")
   ban_array.shift
   end
   system("firewall-cmd --reload")
@@ -287,4 +289,4 @@ else
 end
 
 #file clean up
-system("rm -f ips_out rules_out rules_sorted ips_sorted rules3 rules2 ip temp_file_failed_2 failed rules failed_user failed_ip failed_disconnect temp_disconnect failed_reverse temp_reverse failed_protocol email_comp failed_protocol_temp ipnotat ipnotcom ipnotnet ban_these_ips allip")
+system("rm -f ips_out rules_out rules_sorted ips_sorted rules3 rules2 ip temp_file_failed_2 failed rules failed_user failed_ip failed_disconnect temp_disconnect failed_reverse temp_reverse failed_protocol email_comp failed_protocol_temp ipnotat ipnotcom ipnotnet ban_these_ips allip ipnotcn ipnottw")
